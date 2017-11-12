@@ -1,4 +1,7 @@
 def english_word_list():
+    """get the list of english mnemonic words, as defined in BIP39
+
+    Returns: the list of 2048 mnemonic english words, as defined in BIP39"""
     return [
         'abandon',
         'ability',
