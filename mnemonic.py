@@ -1,7 +1,22 @@
 from bitstring import BitArray
 import random
+import csv
 from hashlib import sha256
-from bip39 import english_word_list
+
+
+def english_word_list(fp):
+    """get the list of english mnemonic words, as defined in BIP39
+
+    fp: the filepath to the word list, where each word is listed
+
+    Returns: the list of 2048 mnemonic english words, as defined in BIP39"""
+    words = []
+    with open(fp) as csvfile:
+        r = csv.reader(csvfile)
+        for word in r:
+            words.append(''.join(word[0]))
+
+    return words
 
 
 def gen_entropy(n):
@@ -48,11 +63,11 @@ def gen_mnemonic_words():
     e = gen_entropy(128)
     # add the checksum to the end of the random sequence
     e.append(checksum(e))
-    # split into 12 segments of 11 bits each
+    # split into 12 segments of 11 bits each`
     bit_segments = bit_split(e, 12)
     # use these segments to look up the corresponding words, as defined in BIP39
-    return [english_word_list()[int(b, 2)] for b in bit_segments]
+    return [english_word_list('bip39words.csv')[int(b, 2)] for b in bit_segments]
 
 
 if __name__ == '__main__':
-    print(gen_mnemonic_words())
+    print(english_word_list('bip39words.csv'))
