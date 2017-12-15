@@ -1,7 +1,7 @@
 from bitstring import BitArray
 from mnemonic import gen_mnemonic_words
 from hashlib import pbkdf2_hmac
-
+from secp256k1 import *
 
 def gen_seed(m, p=None):
     """generate a 512 bit seed using a list of 12 mnemonic words, as defined in BIP39 using an optional passphrase
@@ -16,6 +16,7 @@ def gen_seed(m, p=None):
     rounds = 2048
     seed = pbkdf2_hmac('sha512', pwd.encode(), salt.encode(), rounds)
     return BitArray(seed)
+
 
 
 if __name__ == '__main__':

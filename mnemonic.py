@@ -56,18 +56,60 @@ def bit_split(b, s):
     return bits
 
 
-def gen_mnemonic_words():
-    """generate a new set of 12 mnemonic words, as defined by BIP39
-
+def mnemonic_words(b):
+    """get the corresponding mnemonic words, as defined by BIP39
+    
+    b: list of bitstrings, each with length of 11 bits
+    
     Returns: a list of 12 mnemonic words--a subset of the list of 2048 mnemonic words as provided in BIP39"""
+    return [english_word_list('bip39words.csv')[int(b, 2)] for b in b]
+
+
+def gen_mnemonic_words(verbose=False):
+    if verbose:
+        print('randomly generating 128 bit entropy...')
     e = gen_entropy(128)
-    # add the checksum to the end of the random sequence
-    e.append(checksum(e))
-    # split into 12 segments of 11 bits each`
-    bit_segments = bit_split(e, 12)
-    # use these segments to look up the corresponding words, as defined in BIP39
-    return [english_word_list('bip39words.csv')[int(b, 2)] for b in bit_segments]
+    if verbose: 
+        print('\nentropy generated:')
+        print('\tx' + e.hex)
+
+        print('\n\nadding more complexity by generating adding a checksum..')
+        print('\napplying sha256 hash to the entropy to get first 4 bits as checksum:')
+    cs = checksum(e)
+    
+    if verbose:
+        print('\n\t1stfourbits( sha256(x' + e.hex + ') ) => ' + cs.bin + ' = x' + cs.hex)
+        print('\nadding checksum to entropy sequence:')
+    
+    e_init = e.hex
+    e.append(cs)
+    
+    if verbose:
+        print('\n\tx' + e_init + ' + x' + cs.hex + ' = x' + e.hex)
+        print('\ndivide this sequence into 11-bit segments...')
+    
+    bits = bit_split(e, 12)
+    if verbose:
+        for i, b in enumerate(bits):
+            print('\t' + str(i+1) + '\t' + b)  
+
+        print('\nuse the bits to lookup words from as defined in BIP39')
+    
+    words = mnemonic_words(bits)
+    
+    if verbose:
+        for i, w in enumerate(words):
+            print('\t' + str(i+1) + '\t' + bits[i] + '\t=>\t' + w)
+    
+        print('\n')
+        print(words) 
+    
+    return words
+
+
+def walkthrough():
+  gen_mnemonic_words(verbose=True)  
 
 
 if __name__ == '__main__':
-    print(english_word_list('bip39words.csv'))
+    walkthrough()
